@@ -1,5 +1,6 @@
 package com.roomaja.neteasecloudmusicapi.util;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 
@@ -23,12 +24,16 @@ public class CookieUtil {
         Map<String, String> cookieMap = null;
 
         Cookie[] cookies = request.getCookies();
+        cookieMap = new HashMap<>();
         if (cookies != null) {
-            cookieMap = new HashMap<>();
             for (Cookie cookie : cookies) {
                 cookieMap.put(cookie.getName(), cookie.getValue());
             }
         }
+
+        /*特殊处理__csrf*/
+        cookieMap.putIfAbsent("__csrf", RandomStringUtils.randomAlphanumeric(10));
+
         return cookieMap;
     }
 
