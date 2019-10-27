@@ -17,15 +17,16 @@ public class LoginController {
     @Autowired
     private CookieUtil cookieUtil;
 
-    @PostMapping(value = "/login")
-    public JSONObject email(@RequestParam String username,
+    /*无法使用，返回{"code":-460,"msg":"Cheating"}*/
+    @RequestMapping(value = "/login")
+    public JSONObject email(@RequestParam String email,
                             @RequestParam String password,
                             @RequestParam(defaultValue = "true") String rememberLogin,
                             @RequestParam(defaultValue = "1_jVUMqWEPke0/1/Vu56xCmJpo5vP1grjn_SOVVDzOc78w8OKLVZ2JH7IfkjSXqgfmh") String clientToken,
                             HttpServletResponse response,
                             HttpServletRequest request) {
 
-        ResponseEntity<JSONObject> result = service.login(username, password, rememberLogin, clientToken, cookieUtil.getCookies(request));
+        ResponseEntity<JSONObject> result = service.login(email, password, rememberLogin, clientToken, cookieUtil.getCookies(request));
         CookieUtil.setCookie(result.getHeaders(), response);
         return result.getBody();
     }
@@ -52,6 +53,13 @@ public class LoginController {
     @GetMapping(value = "/login/status")
     public JSONObject loginStatus(HttpServletResponse response, HttpServletRequest request) {
         ResponseEntity<JSONObject> result = service.loginStatus(cookieUtil.getCookies(request));
+        CookieUtil.setCookie(result.getHeaders(), response);
+        return result.getBody();
+    }
+
+    @GetMapping(value = "/logout")
+    public JSONObject logout(HttpServletResponse response, HttpServletRequest request) {
+        ResponseEntity<JSONObject> result = service.logout(cookieUtil.getCookies(request));
         CookieUtil.setCookie(result.getHeaders(), response);
         return result.getBody();
     }

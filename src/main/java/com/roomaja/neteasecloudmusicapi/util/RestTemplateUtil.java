@@ -1,6 +1,8 @@
 package com.roomaja.neteasecloudmusicapi.util;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.roomaja.neteasecloudmusicapi.config.Constant;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -82,6 +84,23 @@ public class RestTemplateUtil {
     }
 
     /**
+     * 设置Headers
+     *
+     * @param cookies
+     * @return
+     */
+    public static HttpHeaders setLinuxApiHeaders(List<String> cookies) {
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
+        headers.put(HttpHeaders.COOKIE, cookies);
+        headers.add(HttpHeaders.REFERER, "https://music.163.com");
+        headers.add(HttpHeaders.USER_AGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36");
+        return headers;
+    }
+
+
+    /**
      * 设置get请求的Headers
      * @param cookies
      * @return
@@ -111,7 +130,7 @@ public class RestTemplateUtil {
      * @param restTemplate
      * @return
      */
-    public static ResponseEntity<JSONObject> post(String params, String encSecKey, String url, Map<String, String> cookies, RestTemplate restTemplate) {
+    public static ResponseEntity<JSONObject> postWeapi(String params, String encSecKey, String url, Map<String, String> cookies, RestTemplate restTemplate) {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("params", params);
         map.add("encSecKey", encSecKey);
@@ -123,7 +142,34 @@ public class RestTemplateUtil {
 
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, setHeaders(list));
 
-        return restTemplate.postForEntity(url, entity, JSONObject.class);
+        ResponseEntity<String> resp =restTemplate.postForEntity(url, entity, String.class);
+
+        return new ResponseEntity<JSONObject>(JSON.parseObject(resp.getBody()),resp.getHeaders(),resp.getStatusCode());
+    }
+
+    /**
+     * 发送Post请求
+     *
+     * @param eparams
+     * @param url
+     * @param cookies
+     * @param restTemplate
+     * @return
+     */
+    public static ResponseEntity<JSONObject> postLinuxapi(String eparams, String url, Map<String, String> cookies, RestTemplate restTemplate) {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("eparams", eparams);
+
+        List<String> list = new ArrayList<>();
+        if (cookies != null) {
+            cookies.forEach((k, v) -> list.add(k + "=" + v));
+        }
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, setLinuxApiHeaders(list));
+
+        ResponseEntity<String> resp =restTemplate.postForEntity(url, entity, String.class);
+
+        return new ResponseEntity<JSONObject>(JSON.parseObject(resp.getBody()),resp.getHeaders(),resp.getStatusCode());
     }
 
     public static ResponseEntity<String> get(String url, Map<String, String> cookies, RestTemplate restTemplate) {

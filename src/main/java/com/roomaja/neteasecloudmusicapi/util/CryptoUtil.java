@@ -1,6 +1,8 @@
 package com.roomaja.neteasecloudmusicapi.util;
 
 import com.alibaba.fastjson.JSONObject;
+import com.roomaja.neteasecloudmusicapi.defaultEnum.AesEncryptEnum;
+import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.crypto.Cipher;
@@ -11,9 +13,11 @@ import java.util.Base64;
 
 public class CryptoUtil {
 
-    private static String nonce = "0CoJUm6Qyw8W8jud";
+    private static String presetKey = "0CoJUm6Qyw8W8jud";
     private static String pubKey = "010001";
     private static String modulus = "00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7";
+    private static String linuxapiKey = "rFgB&h#%2?^eDg:Q";
+    private static String iv = "0102030405060708";
 
     /**
      * 产生16位的随机字符串
@@ -38,17 +42,31 @@ public class CryptoUtil {
      * @param key
      * @return
      */
-    private static String aesEncrypt(String content, String key) {
+    private static String aesEncrypt(String content, String key, AesEncryptEnum aesEncryptEnum, String iv) {
 
         String result = null;
         if (content == null || key == null) return result;
 
         try {
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key.getBytes("utf-8"), "AES"), new IvParameterSpec("0102030405060708".getBytes("utf-8")));
-            byte[] bytes = cipher.doFinal(content.getBytes("utf-8"));
+            Cipher cipher = Cipher.getInstance("AES/"+aesEncryptEnum.getType()+"/PKCS5Padding");
+            byte[] bytes = new byte[0];
 
-            result = Base64.getEncoder().encodeToString(bytes);
+            switch (aesEncryptEnum){
+                case CBC:
+                    cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key.getBytes("utf-8"), "AES"), new IvParameterSpec(iv.getBytes("utf-8")));
+                    bytes = cipher.doFinal(content.getBytes("utf-8"));
+                    result = Base64.getEncoder().encodeToString(bytes);
+                    break;
+                case ECB:
+                    cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key.getBytes("utf-8"), "AES"));
+                    bytes = cipher.doFinal(content.getBytes("utf-8"));
+                    result = HexUtils.toHexString(bytes);
+                    break;
+                default:
+                    break;
+            }
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -108,20 +126,36 @@ public class CryptoUtil {
         return str;
     }
 
+    /**5
+     * 加密方法
+     *
+     * @param content
+     * @return
+     */
+    public static String[] weapiEncrypt(String content) {
+        String[] result = new String[2];
+        String key = createSecretKey(16);
+
+        String encText = aesEncrypt(aesEncrypt(content, presetKey,AesEncryptEnum.CBC,iv), key,AesEncryptEnum.CBC,iv);
+        String encSecKey = rsaEncrypt(key, pubKey, modulus);
+        result[0] = encText;
+        result[1] = encSecKey;
+        return result;
+
+    }
+
     /**
      * 加密方法
      *
      * @param content
      * @return
      */
-    public static String[] Encrypt(String content) {
-        String[] result = new String[2];
-        String key = createSecretKey(16);
+    public static String[] linuxapiEncrypt(String content) {
+        String[] result = new String[1];
+        byte[] a = aesEncrypt(content, linuxapiKey,AesEncryptEnum.ECB,"").getBytes();
 
-        String encText = aesEncrypt(aesEncrypt(content, nonce), key);
-        String encSecKey = rsaEncrypt(key, pubKey, modulus);
-        result[0] = encText;
-        result[1] = encSecKey;
+        String eparams = aesEncrypt(content, linuxapiKey,AesEncryptEnum.ECB,"").toUpperCase();
+        result[0] = eparams;
         return result;
 
     }
@@ -146,7 +180,7 @@ public class CryptoUtil {
     public static void main(String[] args) {
         String content = "{\"ids\":\"[484730184]\",\"br\":128000,\"csrf_token\":\"\"}";
 
-        String[] result = Encrypt(content);
+        String[] result = weapiEncrypt(content);
 
         System.out.println("encText = " + result[0] + " ,encSecKey = " + result[1]);
 
@@ -164,6 +198,8 @@ public class CryptoUtil {
 //        a9d6e8ec07b535a8945415b3786244b5
         System.out.println(CryptoUtil.getMd5("ddm000000"));
 
-
+        System.out.println("A0D9583F4C5FF68DE851D2893A49DE98FAFB24399F27B4F7E74C64B6FC49A965CFA972FA5EA3D6247CD6247C8198CB878588AFAA94B0E0C872FF37D6781726EEF1A7727DF25C2EA3128E3EEDFC533649480FFC7E00E245675EB8B898B9D01B9F9B111CCAA93F04C8C544AFB5AC7342A27452D67032B78AD284BF40BAD79B329F");
+        String[] a =linuxapiEncrypt("{\"method\":\"POST\",\"url\":\"https://music.163.com/api/song/enhance/player/url\",\"params\":{\"ids\":\"[331307]\",\"br\":999000}}");
+        System.out.println(a[0]);
     }
 }

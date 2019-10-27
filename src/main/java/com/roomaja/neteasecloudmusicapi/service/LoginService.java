@@ -37,9 +37,9 @@ public class LoginService {
         object.put("clientToken", clientToken);
         object.put("csrf_token", cookies.get("__csrf"));
 
-        String[] encrypt = CryptoUtil.Encrypt(object.toJSONString());
+        String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
 
-        return RestTemplateUtil.post(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/login?csrf_token=", cookies, restTemplate);
+        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/login?csrf_token=", cookies, restTemplate);
     }
 
     /**
@@ -57,9 +57,9 @@ public class LoginService {
         object.put("rememberLogin", rememberLogin);
         object.put("csrf_token", cookies.get("__csrf"));
 
-        String[] encrypt = CryptoUtil.Encrypt(object.toJSONString());
+        String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
 
-        return RestTemplateUtil.post(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/login/cellphone", cookies, restTemplate);
+        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/login/cellphone", cookies, restTemplate);
 
     }
 
@@ -71,8 +71,8 @@ public class LoginService {
     public ResponseEntity<JSONObject> refreshToken(Map<String, String> cookies) {
         JSONObject object = new JSONObject();
         object.put("csrf_token", cookies.get("__csrf"));
-        String[] encrypt = CryptoUtil.Encrypt(object.toJSONString());
-        return RestTemplateUtil.post(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/login/token/refresh", cookies, restTemplate);
+        String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
+        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/login/token/refresh", cookies, restTemplate);
     }
 
     /**
@@ -83,7 +83,7 @@ public class LoginService {
     public ResponseEntity<JSONObject> loginStatus(Map<String, String> cookies) {
         JSONObject object = new JSONObject();
         object.put("csrf_token", cookies.get("__csrf"));
-        String[] encrypt = CryptoUtil.Encrypt(object.toJSONString());
+        String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
 
         ResponseEntity<String> resp = RestTemplateUtil.get(Constant.NETEASE_BASE_URL,cookies,restTemplate);
 
@@ -99,6 +99,21 @@ public class LoginService {
         j.put("bindings",JSON.parseArray(bindingsJsonStr));
 
         return new ResponseEntity<JSONObject>(j,resp.getHeaders(),resp.getStatusCode());
+    }
+
+    /**
+     * 退出登录
+     * @param cookies
+     * @return
+     */
+    public ResponseEntity<JSONObject> logout(Map<String, String> cookies) {
+        JSONObject object = new JSONObject();
+        object.put("csrf_token", cookies.get("__csrf"));
+
+        String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
+
+        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/logout", cookies, restTemplate);
+
     }
 
 }
