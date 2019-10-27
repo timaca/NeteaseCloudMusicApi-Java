@@ -1,14 +1,17 @@
 package com.roomaja.neteasecloudmusicapi.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.roomaja.neteasecloudmusicapi.config.Constant;
 import com.roomaja.neteasecloudmusicapi.util.CryptoUtil;
 import com.roomaja.neteasecloudmusicapi.util.RestTemplateUtil;
+import com.roomaja.neteasecloudmusicapi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -81,7 +84,21 @@ public class LoginService {
         JSONObject object = new JSONObject();
         object.put("csrf_token", cookies.get("__csrf"));
         String[] encrypt = CryptoUtil.Encrypt(object.toJSONString());
-        return RestTemplateUtil.get(Constant.NETEASE_BASE_URL,cookies,restTemplate);
+
+        ResponseEntity<String> resp = RestTemplateUtil.get(Constant.NETEASE_BASE_URL,cookies,restTemplate);
+
+        List<String> profile = StringUtil.findall("GUser\\s*=\\s*([^;]+);",resp.getBody());
+        List<String> bindings = StringUtil.findall("GBinds\\s*=\\s*([^;]+);",resp.getBody());
+
+        String profileJsonStr = StringUtil.evalJS("JSON.stringify("+profile.get(0).replace("GUser=","").replace(";","")+")");
+        String bindingsJsonStr = StringUtil.evalJS("JSON.stringify("+bindings.get(0).replace("GBinds=","").replace(";","")+")");
+
+        JSONObject j = new JSONObject();
+        j.put("code",200);
+        j.put("profile", JSON.parseObject(profileJsonStr));
+        j.put("bindings",JSON.parseArray(bindingsJsonStr));
+
+        return new ResponseEntity<JSONObject>(j,resp.getHeaders(),resp.getStatusCode());
     }
 
 }

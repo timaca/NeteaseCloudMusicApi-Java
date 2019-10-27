@@ -1,5 +1,8 @@
 package com.roomaja.neteasecloudmusicapi.util;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,5 +22,17 @@ public class StringUtil {
             matchStrings.add(matcher.group());
         }
         return matchStrings;
+    }
+
+    /*执行js脚本*/
+    public static String evalJS(String js){
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByName("javascript");
+        try {
+            return String.valueOf(engine.eval(js));
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

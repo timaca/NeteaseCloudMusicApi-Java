@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 public class LoginController {
     @Autowired
     private LoginService service;
+    @Autowired
+    private CookieUtil cookieUtil;
 
     @PostMapping(value = "/login")
     public JSONObject email(@RequestParam String username,
@@ -23,7 +25,7 @@ public class LoginController {
                             HttpServletResponse response,
                             HttpServletRequest request) {
 
-        ResponseEntity<JSONObject> result = service.login(username, password, rememberLogin, clientToken, CookieUtil.getCookies(request));
+        ResponseEntity<JSONObject> result = service.login(username, password, rememberLogin, clientToken, cookieUtil.getCookies(request));
         CookieUtil.setCookie(result.getHeaders(), response);
         return result.getBody();
     }
@@ -35,21 +37,21 @@ public class LoginController {
                             HttpServletResponse response,
                             HttpServletRequest request) {
 
-        ResponseEntity<JSONObject> result = service.cellphoneLogin(phone, password, rememberLogin, CookieUtil.getCookies(request));
+        ResponseEntity<JSONObject> result = service.cellphoneLogin(phone, password, rememberLogin, cookieUtil.getCookies(request));
         CookieUtil.setCookie(result.getHeaders(), response);
         return result.getBody();
     }
 
     @GetMapping(value = "/login/token/refresh")
     public JSONObject refresh(HttpServletResponse response, HttpServletRequest request) {
-        ResponseEntity<JSONObject> result = service.refreshToken(CookieUtil.getCookies(request));
+        ResponseEntity<JSONObject> result = service.refreshToken(cookieUtil.getCookies(request));
         CookieUtil.setCookie(result.getHeaders(), response);
         return result.getBody();
     }
 
     @GetMapping(value = "/login/status")
     public JSONObject loginStatus(HttpServletResponse response, HttpServletRequest request) {
-        ResponseEntity<JSONObject> result = service.loginStatus(CookieUtil.getCookies(request));
+        ResponseEntity<JSONObject> result = service.loginStatus(cookieUtil.getCookies(request));
         CookieUtil.setCookie(result.getHeaders(), response);
         return result.getBody();
     }

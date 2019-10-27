@@ -126,7 +126,7 @@ public class RestTemplateUtil {
         return restTemplate.postForEntity(url, entity, JSONObject.class);
     }
 
-    public static ResponseEntity<JSONObject> get(String url, Map<String, String> cookies, RestTemplate restTemplate) {
+    public static ResponseEntity<String> get(String url, Map<String, String> cookies, RestTemplate restTemplate) {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 
         List<String> list = new ArrayList<>();
@@ -136,21 +136,8 @@ public class RestTemplateUtil {
 
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, setGetHeaders(list));
 
-        ResponseEntity<String> body = restTemplate.exchange(url, HttpMethod.GET,entity,String.class);
-
-        System.out.println(body.getBody());
-
-        List<String> profile = StringUtil.findall("GUser\\s*=\\s*([^;]+);",body.getBody().toString());
-        List<String> bindings = StringUtil.findall("GBinds\\s*=\\s*([^;]+);",body.getBody().toString());
-
-        JSONObject j = new JSONObject();
-        j.put("profile",profile.get(0));
-        j.put("bindings",bindings.size());
-
-        System.out.println(j.toString());
-
-        return null;
-
+//        return restTemplate.getForEntity(url, String.class,entity);
+        return restTemplate.exchange(url, HttpMethod.GET,entity,String.class);
 
     }
 

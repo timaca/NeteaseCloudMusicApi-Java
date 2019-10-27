@@ -2,7 +2,10 @@ package com.roomaja.neteasecloudmusicapi.util;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -11,15 +14,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// 枚举类（线程安全，调用效率高，不能延时加载，可以天然的防止反射和反序列化调用）
+@Component
+@CacheConfig(cacheNames = "cookies")
 public class CookieUtil {
-
     /**
      * 获取request中的Cookie对象Map
      *
      * @param request
      * @return
      */
-    public static Map<String, String> getCookies(HttpServletRequest request) {
+    @Cacheable(key = "#request.getSession().getId()")
+    public Map<String, String> getCookies(HttpServletRequest request) {
 
         Map<String, String> cookieMap = null;
 
