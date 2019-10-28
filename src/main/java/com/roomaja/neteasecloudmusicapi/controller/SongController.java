@@ -28,4 +28,12 @@ public class SongController {
         return result.getBody();
     }
 
+    /* 歌曲详情 */
+    @RequestMapping(value = "/song/detail")
+    public JSONObject refresh(@RequestParam String ids, HttpServletResponse response, HttpServletRequest request) {
+        ResponseEntity<JSONObject> result = songService.songDetail(ids, cookieUtil.getCookies(request));
+        CookieUtil.setCookie(result.getHeaders(), response);
+        return result.getBody();
+    }
+
 }

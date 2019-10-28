@@ -1,5 +1,6 @@
 package com.roomaja.neteasecloudmusicapi.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.roomaja.neteasecloudmusicapi.config.Constant;
 import com.roomaja.neteasecloudmusicapi.util.CryptoUtil;
@@ -38,6 +39,34 @@ public class SongService {
         String[] encrypt = CryptoUtil.linuxapiEncrypt(object.toJSONString());
 
         return RestTemplateUtil.postLinuxapi(encrypt[0], Constant.NETEASE_LINUXAPI_BASE_URL, cookies, restTemplate);
+    }
+
+    /**
+     * 传入音乐 id(支持多个 id, 用 , 隔开), 可获得歌曲详情(注意:歌曲封面现在需要通过专辑内容接口获取)
+     * 
+     * @param ids     音乐 id, 如 ids=347230
+     * @param cookies
+     * @return
+     */
+    public ResponseEntity<JSONObject> songDetail(String ids, Map<String, String> cookies) {
+
+        JSONObject params = new JSONObject();
+
+        JSONArray c = new JSONArray();
+        for (String id : ids.split("\\s*,\\s*")) {
+            JSONObject curId = new JSONObject();
+            curId.put("id", id);
+            c.add(curId);
+        }
+
+        params.put("c", JSONArray.toJSONString(c));
+        params.put("ids", "[" + ids + "]");
+        params.put("csrf_token", cookies.get("__csrf"));
+
+        String[] encrypt = CryptoUtil.weapiEncrypt(params.toJSONString());
+
+        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1],
+                Constant.NETEASE_BASE_URL + "/weapi/v3/song/detail?csrf_token=", cookies, restTemplate);
     }
 
 }
