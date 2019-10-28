@@ -21,6 +21,7 @@ public class LoginService {
 
     /**
      * 账号登陆
+     * 
      * @param username
      * @param password
      * @param rememberLogin
@@ -28,7 +29,8 @@ public class LoginService {
      * @param cookies
      * @return
      */
-    public ResponseEntity<JSONObject> login(String username, String password, String rememberLogin, String clientToken, Map<String, String> cookies) {
+    public ResponseEntity<JSONObject> login(String username, String password, String rememberLogin, String clientToken,
+            Map<String, String> cookies) {
 
         JSONObject object = new JSONObject();
         object.put("username", username);
@@ -39,18 +41,21 @@ public class LoginService {
 
         String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
 
-        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/login?csrf_token=", cookies, restTemplate);
+        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1],
+                Constant.NETEASE_BASE_URL + "/weapi/login?csrf_token=", cookies, restTemplate);
     }
 
     /**
      * 手机登陆
+     * 
      * @param phone
      * @param password
      * @param rememberLogin
      * @param cookies
      * @return
      */
-    public ResponseEntity<JSONObject> cellphoneLogin(String phone, String password, String rememberLogin, Map<String, String> cookies) {
+    public ResponseEntity<JSONObject> cellphoneLogin(String phone, String password, String rememberLogin,
+            Map<String, String> cookies) {
         JSONObject object = new JSONObject();
         object.put("phone", phone);
         object.put("password", CryptoUtil.getMd5(password));
@@ -59,12 +64,14 @@ public class LoginService {
 
         String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
 
-        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/login/cellphone", cookies, restTemplate);
+        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/login/cellphone",
+                cookies, restTemplate);
 
     }
 
     /**
      * 刷新登陆
+     * 
      * @param cookies
      * @return
      */
@@ -72,37 +79,42 @@ public class LoginService {
         JSONObject object = new JSONObject();
         object.put("csrf_token", cookies.get("__csrf"));
         String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
-        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/login/token/refresh", cookies, restTemplate);
+        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1],
+                Constant.NETEASE_BASE_URL + "/weapi/login/token/refresh", cookies, restTemplate);
     }
 
     /**
      * 登陆状态
+     * 
      * @param cookies
      * @return
      */
     public ResponseEntity<JSONObject> loginStatus(Map<String, String> cookies) {
         JSONObject object = new JSONObject();
         object.put("csrf_token", cookies.get("__csrf"));
-        String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
+        // String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
 
-        ResponseEntity<String> resp = RestTemplateUtil.get(Constant.NETEASE_BASE_URL,cookies,restTemplate);
+        ResponseEntity<String> resp = RestTemplateUtil.get(Constant.NETEASE_BASE_URL, cookies, restTemplate);
 
-        List<String> profile = StringUtil.findall("GUser\\s*=\\s*([^;]+);",resp.getBody());
-        List<String> bindings = StringUtil.findall("GBinds\\s*=\\s*([^;]+);",resp.getBody());
+        List<String> profile = StringUtil.findall("GUser\\s*=\\s*([^;]+);", resp.getBody());
+        List<String> bindings = StringUtil.findall("GBinds\\s*=\\s*([^;]+);", resp.getBody());
 
-        String profileJsonStr = StringUtil.evalJS("JSON.stringify("+profile.get(0).replace("GUser=","").replace(";","")+")");
-        String bindingsJsonStr = StringUtil.evalJS("JSON.stringify("+bindings.get(0).replace("GBinds=","").replace(";","")+")");
+        String profileJsonStr = StringUtil
+                .evalJS("JSON.stringify(" + profile.get(0).replace("GUser=", "").replace(";", "") + ")");
+        String bindingsJsonStr = StringUtil
+                .evalJS("JSON.stringify(" + bindings.get(0).replace("GBinds=", "").replace(";", "") + ")");
 
         JSONObject j = new JSONObject();
-        j.put("code",200);
+        j.put("code", 200);
         j.put("profile", JSON.parseObject(profileJsonStr));
-        j.put("bindings",JSON.parseArray(bindingsJsonStr));
+        j.put("bindings", JSON.parseArray(bindingsJsonStr));
 
-        return new ResponseEntity<JSONObject>(j,resp.getHeaders(),resp.getStatusCode());
+        return new ResponseEntity<JSONObject>(j, resp.getHeaders(), resp.getStatusCode());
     }
 
     /**
      * 退出登录
+     * 
      * @param cookies
      * @return
      */
@@ -112,7 +124,8 @@ public class LoginService {
 
         String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
 
-        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/logout", cookies, restTemplate);
+        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/logout", cookies,
+                restTemplate);
 
     }
 

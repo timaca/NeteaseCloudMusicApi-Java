@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// 枚举类（线程安全，调用效率高，不能延时加载，可以天然的防止反射和反序列化调用）
 @Component
 @CacheConfig(cacheNames = "cookies")
 public class CookieUtil {
@@ -37,7 +36,7 @@ public class CookieUtil {
             }
         }
 
-        /*特殊处理__csrf*/
+        /* 特殊处理__csrf */
         cookieMap.putIfAbsent("__csrf", RandomStringUtils.randomAlphanumeric(10));
 
         return cookieMap;
@@ -58,7 +57,7 @@ public class CookieUtil {
                 if (entry.length > 0) {
                     String[] ck = StringUtils.split(entry[0].trim(), "=");
                     if (ck.length == 2) {
-                        if(StringUtils.isNotBlank(ck[1].trim())){
+                        if (StringUtils.isNotBlank(ck[1].trim())) {
                             Cookie cookie = new Cookie(ck[0].trim(), ck[1].trim());
                             cookie.setPath("/");
                             cookie.setMaxAge(14 * 24 * 60 * 60);
@@ -67,10 +66,8 @@ public class CookieUtil {
                     }
                 }
 
-
             }
         }
     }
-
 
 }

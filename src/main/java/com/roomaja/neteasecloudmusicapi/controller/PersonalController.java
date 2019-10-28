@@ -18,7 +18,7 @@ public class PersonalController {
     @Autowired
     private CookieUtil cookieUtil;
 
-    /*私人fm*/
+    /* 私人fm */
     @RequestMapping(value = "/personal_fm")
     public JSONObject refresh(HttpServletResponse response, HttpServletRequest request) {
         ResponseEntity<JSONObject> result = personalService.personalFm(cookieUtil.getCookies(request));

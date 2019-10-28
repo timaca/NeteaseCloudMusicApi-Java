@@ -15,8 +15,10 @@ import java.util.Map;
 public class PersonalService {
     @Autowired
     private RestTemplate restTemplate;
+
     /**
      * 私人FM
+     * 
      * @param cookies
      * @return
      */
@@ -27,7 +29,8 @@ public class PersonalService {
 
         String[] encrypt = CryptoUtil.weapiEncrypt(object.toJSONString());
 
-        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1], Constant.NETEASE_BASE_URL + "/weapi/v1/radio/get?csrf_token=", cookies, restTemplate);
+        return RestTemplateUtil.postWeapi(encrypt[0], encrypt[1],
+                Constant.NETEASE_BASE_URL + "/weapi/v1/radio/get?csrf_token=", cookies, restTemplate);
     }
 
 }

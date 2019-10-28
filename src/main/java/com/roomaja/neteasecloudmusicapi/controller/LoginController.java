@@ -17,28 +17,26 @@ public class LoginController {
     @Autowired
     private CookieUtil cookieUtil;
 
-    /*无法使用，返回{"code":-460,"msg":"Cheating"}*/
+    /* 无法使用，返回{"code":-460,"msg":"Cheating"} */
     @RequestMapping(value = "/login")
-    public JSONObject email(@RequestParam String email,
-                            @RequestParam String password,
-                            @RequestParam(defaultValue = "true") String rememberLogin,
-                            @RequestParam(defaultValue = "1_jVUMqWEPke0/1/Vu56xCmJpo5vP1grjn_SOVVDzOc78w8OKLVZ2JH7IfkjSXqgfmh") String clientToken,
-                            HttpServletResponse response,
-                            HttpServletRequest request) {
+    public JSONObject email(@RequestParam String email, @RequestParam String password,
+            @RequestParam(defaultValue = "true") String rememberLogin,
+            @RequestParam(defaultValue = "1_jVUMqWEPke0/1/Vu56xCmJpo5vP1grjn_SOVVDzOc78w8OKLVZ2JH7IfkjSXqgfmh") String clientToken,
+            HttpServletResponse response, HttpServletRequest request) {
 
-        ResponseEntity<JSONObject> result = service.login(email, password, rememberLogin, clientToken, cookieUtil.getCookies(request));
+        ResponseEntity<JSONObject> result = service.login(email, password, rememberLogin, clientToken,
+                cookieUtil.getCookies(request));
         CookieUtil.setCookie(result.getHeaders(), response);
         return result.getBody();
     }
 
     @RequestMapping(value = "/login/cellphone")
-    public JSONObject phone(@RequestParam String phone,
-                            @RequestParam String password,
-                            @RequestParam(defaultValue = "true") String rememberLogin,
-                            HttpServletResponse response,
-                            HttpServletRequest request) {
+    public JSONObject phone(@RequestParam String phone, @RequestParam String password,
+            @RequestParam(defaultValue = "true") String rememberLogin, HttpServletResponse response,
+            HttpServletRequest request) {
 
-        ResponseEntity<JSONObject> result = service.cellphoneLogin(phone, password, rememberLogin, cookieUtil.getCookies(request));
+        ResponseEntity<JSONObject> result = service.cellphoneLogin(phone, password, rememberLogin,
+                cookieUtil.getCookies(request));
         CookieUtil.setCookie(result.getHeaders(), response);
         return result.getBody();
     }
